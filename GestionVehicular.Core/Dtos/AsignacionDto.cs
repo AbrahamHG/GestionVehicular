@@ -14,7 +14,7 @@ namespace GestionVehicular.Core.Dtos
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
 
-        // Estas propiedades deben existir si las usas en el frontend
+        // frontend
         public string ConductorNombre { get; set; } = string.Empty;
         public string VehiculoMatricula { get; set; } = string.Empty;
 

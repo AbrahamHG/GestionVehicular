@@ -11,8 +11,8 @@ namespace GestionVehicular.Core
         public int Id { get; set; }
         public string Accion { get; set; } = string.Empty;
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
-        public int? UsuarioId { get; set; }   // opcional si manejas usuarios
-        public string? RealizadoPor { get; set; }  // IP o usuario técnico
+        public int? UsuarioId { get; set; }
+        public string? RealizadoPor { get; set; }  
         public string? Cambios { get; set; }
     }
 

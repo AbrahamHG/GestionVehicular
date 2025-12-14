@@ -14,7 +14,7 @@ namespace GestionVehicular.Core
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
 
-        // Relaciones de navegación
+        // Relaciones de navegacion
         public Vehiculo Vehiculo { get; set; } = default!;
         public Conductor Conductor { get; set; } = default!;
     }

@@ -74,7 +74,7 @@ namespace GestionVehicular.Api.Controllers
             {
                 var conductores = _context.Conductores
                    .FromSqlRaw("EXEC spObtenerConductores")
-                   .AsEnumerable() // fuerza ejecución en memoria
+                   .AsEnumerable()
                    .Select(c => new ConductorDto
                    {
                        Id = c.Id,
@@ -102,7 +102,7 @@ namespace GestionVehicular.Api.Controllers
             {
                 var conductor = _context.Conductores
             .FromSqlRaw("EXEC spObtenerConductorPorId @Id", new SqlParameter("@Id", id))
-            .AsEnumerable() // evita el error de composición
+            .AsEnumerable()
             .Select(c => new ConductorDto
             {
                 Id = c.Id,

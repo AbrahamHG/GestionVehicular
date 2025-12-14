@@ -42,10 +42,8 @@ public class VehiculoControllerTests
             Tipo = "Sedán"
         };
 
-        // Act
         var result = controller.CrearVehiculo(dto);
 
-        // Assert
         var objectResult = Assert.IsAssignableFrom<ObjectResult>(result);
         Assert.Equal(200, objectResult.StatusCode);
         Assert.Equal("Vehiculo creado correctamente", objectResult.Value);
@@ -54,7 +52,6 @@ public class VehiculoControllerTests
     [Fact]
     public void CrearVehiculo_MatriculaDuplicada_DeberiaRetornarConflict()
     {
-        // Arrange
         var context = CrearDbContextSqlServer();
         context.Database.ExecuteSqlRaw("DELETE FROM Asignacion");
         context.Database.ExecuteSqlRaw("DELETE FROM Conductor"); // limpiar tabla
@@ -63,7 +60,6 @@ public class VehiculoControllerTests
         var logger = new Mock<ILogger<VehiculoController>>();
         var controller = new VehiculoController(context, logger.Object);
 
-        // Crear primer vehículo usando el controlador
         controller.CrearVehiculo(new VehiculoDto
         {
             Matricula = "TEST002",
@@ -73,7 +69,6 @@ public class VehiculoControllerTests
             Tipo = "Sedán"
         });
 
-        // Act: intentar crear duplicado
         var result = controller.CrearVehiculo(new VehiculoDto
         {
             Matricula = "TEST002",
@@ -83,7 +78,6 @@ public class VehiculoControllerTests
             Tipo = "Sedán"
         });
 
-        // Assert
         var objectResult = Assert.IsAssignableFrom<ObjectResult>(result);
         Assert.Equal(409, objectResult.StatusCode);
         Assert.Equal("Ya existe un vehículo con esa matricula", objectResult.Value);
@@ -93,16 +87,15 @@ public class VehiculoControllerTests
     [Fact]
     public void ObtenerVehiculos_DeberiaRetornarLista()
     {
-        // Arrange
         var context = CrearDbContextSqlServer();
         context.Database.ExecuteSqlRaw("DELETE FROM Asignacion");
-        context.Database.ExecuteSqlRaw("DELETE FROM Conductor"); // limpiar tabla
-        context.Database.ExecuteSqlRaw("DELETE FROM Vehiculo"); // limpiar tabla
+        context.Database.ExecuteSqlRaw("DELETE FROM Conductor");
+        context.Database.ExecuteSqlRaw("DELETE FROM Vehiculo"); 
 
         var logger = new Mock<ILogger<VehiculoController>>();
         var controller = new VehiculoController(context, logger.Object);
 
-        // Crear vehículo usando el controlador
+ 
         controller.CrearVehiculo(new VehiculoDto
         {
             Matricula = "TEST003",
@@ -112,10 +105,8 @@ public class VehiculoControllerTests
             Tipo = "Sedán"
         });
 
-        // Act
         var result = controller.ObtenerVehiculos();
 
-        // Assert
         var objectResult = Assert.IsAssignableFrom<ObjectResult>(result);
         Assert.Equal(200, objectResult.StatusCode);
 

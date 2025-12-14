@@ -236,7 +236,7 @@ else
             }
             else
             {
-                // Si no hay "errors", mostrar el texto plano
+                
                 mensajeMarkup = new MarkupString(json);
                 alertClass = "alert-danger";
                 _ = OcultarMensajeAsync();
@@ -244,7 +244,7 @@ else
         }
         catch
         {
-            // Si no es JSON válido, mostrar el texto plano
+            
             mensajeMarkup = new MarkupString(json);
             alertClass = "alert-danger";
             _ = OcultarMensajeAsync();

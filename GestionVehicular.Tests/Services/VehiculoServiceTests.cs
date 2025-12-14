@@ -11,7 +11,7 @@ public class VehiculoServiceTests
     private AppDbContext CrearDbContextInMemory()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-       .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // 👈 nombre único
+       .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
        .Options;
 
 
@@ -21,7 +21,6 @@ public class VehiculoServiceTests
     [Fact]
     public void CrearVehiculo_DeberiaAgregarVehiculo()
     {
-        // Arrange
         var context = CrearDbContextInMemory();
 
         var dto = new VehiculoDto
@@ -33,7 +32,7 @@ public class VehiculoServiceTests
             Tipo = "Sedán"
         };
 
-        // Act
+
         context.Vehiculos.Add(new Vehiculo
         {
             Matricula = dto.Matricula,
@@ -45,7 +44,6 @@ public class VehiculoServiceTests
         });
         context.SaveChanges();
 
-        // Assert
         var vehiculo = context.Vehiculos.FirstOrDefault(v => v.Matricula == "SERV001");
         Assert.NotNull(vehiculo);
         Assert.Equal("Mazda", vehiculo.Marca);
@@ -54,7 +52,6 @@ public class VehiculoServiceTests
     [Fact]
     public void CrearVehiculo_MatriculaDuplicada_DeberiaFallar()
     {
-        // Arrange
         var context = CrearDbContextInMemory();
 
         context.Vehiculos.Add(new Vehiculo
@@ -77,17 +74,17 @@ public class VehiculoServiceTests
             Tipo = "Sedán"
         };
 
-        // Act
+        
         var existe = context.Vehiculos.Any(v => v.Matricula == dtoDuplicado.Matricula);
 
-        // Assert
-        Assert.True(existe); // ya existe, no debería permitir duplicado
+        
+        Assert.True(existe); 
     }
 
     [Fact]
     public void ObtenerVehiculos_DeberiaRetornarListaActivos()
     {
-        // Arrange
+
         var context = CrearDbContextInMemory();
 
         context.Vehiculos.Add(new Vehiculo
@@ -110,10 +107,8 @@ public class VehiculoServiceTests
         });
         context.SaveChanges();
 
-        // Act
         var activos = context.Vehiculos.Where(v => v.Estado == "Activo").ToList();
 
-        // Assert
         Assert.Single(activos);
         Assert.Equal("SERV003", activos.First().Matricula);
     }

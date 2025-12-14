@@ -64,7 +64,7 @@ public class ConductorServiceTests
 
         var existe = context.Conductores.Any(c => c.NumeroLicencia == dtoDuplicado.NumeroLicencia);
 
-        Assert.True(existe); // ya existe, no debería permitir duplicado
+        Assert.True(existe);
     }
 
     [Fact]

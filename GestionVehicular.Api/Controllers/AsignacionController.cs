@@ -35,7 +35,7 @@ namespace GestionVehicular.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Datos inválidos");
 
-            // Validar que el vehículo exista y esté disponible
+            // Validar que el vehiculo exista y este disponible
             var vehiculo = _context.Vehiculos.Find(dto.VehiculoId);
             if (vehiculo == null)
                 return NotFound("Vehículo no encontrado");
@@ -62,7 +62,7 @@ namespace GestionVehicular.Api.Controllers
             if (existeAsignacion)
                 return Conflict("Ya existe una asignacion con esos datos");
 
-            // Validar que el conductor no tenga otra asignación en ese rango
+            // Validar que el conductor no tenga otra asignacion en ese rango
             var conductorAsignado = _context.Asignaciones.Any(a =>
                 a.ConductorId == dto.ConductorId &&
                 a.FechaFin >= dto.FechaInicio &&
@@ -174,10 +174,10 @@ namespace GestionVehicular.Api.Controllers
             if (conductor == null)
                 return NotFound("Conductor no encontrado");
 
-            // Validar que el conductor no tenga otra asignación activa en el rango
+            // Validar que el conductor no tenga otra asignacion activa en el rango
             var conductorAsignado = _context.Asignaciones.Any(a =>
                 a.ConductorId == dto.ConductorId &&
-                a.Id != id && // excluir la asignación actual
+                a.Id != id &&
                 a.FechaFin >= dto.FechaInicio &&
                 a.FechaInicio <= dto.FechaFin);
 

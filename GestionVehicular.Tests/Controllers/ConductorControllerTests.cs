@@ -24,7 +24,7 @@ public class ConductorControllerTests
     public void CrearConductor_DeberiaRetornarOkConMensaje()
     {
         var context = CrearDbContextSqlServer();
-        context.Database.ExecuteSqlRaw("DELETE FROM Conductor"); // limpiar tabla
+        context.Database.ExecuteSqlRaw("DELETE FROM Conductor");
 
         var logger = new Mock<ILogger<ConductorController>>();
         var controller = new ConductorController(context, logger.Object);
@@ -46,7 +46,7 @@ public class ConductorControllerTests
     public void CrearConductor_NumeroLicenciaDuplicada_DeberiaRetornarConflict()
     {
         var context = CrearDbContextSqlServer();
-        context.Database.ExecuteSqlRaw("DELETE FROM Conductor"); // limpiar tabla
+        context.Database.ExecuteSqlRaw("DELETE FROM Conductor");
 
         var logger = new Mock<ILogger<ConductorController>>();
         var controller = new ConductorController(context, logger.Object);
@@ -73,7 +73,7 @@ public class ConductorControllerTests
     public void ObtenerConductores_DeberiaRetornarLista()
     {
         var context = CrearDbContextSqlServer();
-        context.Database.ExecuteSqlRaw("DELETE FROM Conductor"); // limpiar tabla
+        context.Database.ExecuteSqlRaw("DELETE FROM Conductor");
 
         var logger = new Mock<ILogger<ConductorController>>();
         var controller = new ConductorController(context, logger.Object);

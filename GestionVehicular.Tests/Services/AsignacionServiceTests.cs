@@ -56,7 +56,7 @@ public class AsignacionServiceTests
         context.Conductores.AddRange(conductor1, conductor2);
         context.SaveChanges();
 
-        // Primera asignación
+        
         context.Asignaciones.Add(new Asignacion
         {
             VehiculoId = vehiculo.Id,
@@ -66,12 +66,12 @@ public class AsignacionServiceTests
         });
         context.SaveChanges();
 
-        // Intento de asignación solapada
+        
         var solapada = context.Asignaciones.Any(a =>
             a.VehiculoId == vehiculo.Id &&
             DateTime.Today.AddDays(3) < a.FechaFin);
 
-        Assert.True(solapada); // el vehículo ya está asignado en ese rango
+        Assert.True(solapada);
     }
 
     [Fact]

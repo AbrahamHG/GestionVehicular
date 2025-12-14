@@ -177,7 +177,7 @@ else
         mensaje = texto;
         alertClass = tipo;
 
-        // Ocultar después de 5 segundos
+       
         _ = OcultarMensajeAsync();
     }
 
@@ -186,7 +186,7 @@ else
         await Task.Delay(5000);
         mensaje = string.Empty;
         mensajeMarkup = new MarkupString(string.Empty);
-        await InvokeAsync(StateHasChanged); // refresca la UI en el contexto de Blazor
+        await InvokeAsync(StateHasChanged);
     }
 
     private MarkupString mensajeMarkup;
@@ -222,7 +222,7 @@ else
             }
             else
             {
-                // Si no hay "errors", mostrar el texto plano
+                
                 mensajeMarkup = new MarkupString(json);
                 alertClass = "alert-danger";
                 _ = OcultarMensajeAsync();
@@ -230,7 +230,6 @@ else
         }
         catch
         {
-            // Si no es JSON válido, mostrar el texto plano
             mensajeMarkup = new MarkupString(json);
             alertClass = "alert-danger";
             _ = OcultarMensajeAsync();

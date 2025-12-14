@@ -11,8 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Logs
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // ignora info/debug de ASP.NET
-    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)    // ignora info/debug del sistema
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
@@ -28,7 +28,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "API Gestión Vehicular", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "API Gestion Vehicular", Version = "v1" });
     c.ExampleFilters();
 });
 

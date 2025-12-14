@@ -14,7 +14,7 @@ namespace GestionVehicular.Infrastructure
         public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<Conductor> Conductores { get; set; }
         public DbSet<Asignacion> Asignaciones { get; set; }
-        public DbSet<Log> Logs { get; set; } // opcional, si usas la tabla Logs
+        public DbSet<Log> Logs { get; set; } //
 
         public DbSet<AsignacionView> AsignacionesView { get; set; }
 
@@ -22,7 +22,7 @@ namespace GestionVehicular.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            // Mapear nombres de tablas en singular
+            // Mapear nombres de tablas
             modelBuilder.Entity<Vehiculo>().ToTable("Vehiculo");
             modelBuilder.Entity<Conductor>().ToTable("Conductor");
             modelBuilder.Entity<Asignacion>().ToTable("Asignacion");

@@ -7,7 +7,7 @@ namespace GestionVehicular.Api.Controllers
     [Route("api/[controller]")]
     public class ConductoresController : ControllerBase
     {
-        // Datos simulados por ahora
+        //
         private static readonly List<ConductorDto> _conductores = new()
         {
             new ConductorDto { NombreCompleto = "Juan Pérez", NumeroLicencia = "ABC123", Contacto = "juan@mail.com" },

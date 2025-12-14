@@ -1,0 +1,266 @@
+﻿@page "/asignaciones"
+@using System.Text.Json
+@inject AsignacionService asignacionService
+
+<h3>Gestión de Asignaciones</h3>
+
+@if (!string.IsNullOrEmpty(mensajeMarkup.Value))
+{
+    <div class="alert @alertClass text-center mx-auto w-50 mt-3" role="alert">
+        @mensajeMarkup
+    </div>
+}
+else if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert @alertClass text-center mx-auto w-50 mt-3" role="alert">
+        @mensaje
+    </div>
+}
+
+@if (asignaciones == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Conductor</th>
+                <th>Vehículo</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in asignaciones)
+            {
+                <tr>
+                    <td>@a.ConductorNombre</td>
+                    <td>@a.VehiculoMatricula</td>
+                    <td>@a.FechaInicio.ToShortDateString()</td>
+                    <td>@a.FechaFin.ToShortDateString()</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => EditarAsignacion(a)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarAsignacion(a.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h4>@(editando ? "Editar Asignación" : "Nueva Asignación")</h4>
+
+<EditForm Model="@asignacionForm" OnValidSubmit="GuardarAsignacion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Conductor</label>
+        <InputSelect @bind-Value="asignacionForm.ConductorId" class="form-control">
+            <option value="0" disabled selected>Seleccione un conductor...</option>
+            @if (conductores != null && conductores.Any())
+            {
+                @foreach (var c in conductores)
+                {
+                    <option value="@c.Id">@c.NombreCompleto</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => asignacionForm.ConductorId)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Vehículo</label>
+        <InputSelect @bind-Value="asignacionForm.VehiculoId" class="form-control">
+            <option value="0" disabled selected>Seleccione un vehículo...</option>
+            @if (vehiculosDisponibles != null && vehiculosDisponibles.Any())
+            {
+                @foreach (var v in vehiculosDisponibles)
+                {
+                    <option value="@v.Id">@v.Matricula</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => asignacionForm.VehiculoId)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Fecha Inicio</label>
+        <InputDate @bind-Value="asignacionForm.FechaInicio" class="form-control" />
+        <ValidationMessage For="@(() => asignacionForm.FechaInicio)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Fecha Fin</label>
+        <InputDate @bind-Value="asignacionForm.FechaFin" class="form-control" />
+        <ValidationMessage For="@(() => asignacionForm.FechaFin)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">@(editando ? "Actualizar" : "Guardar")</button>
+    <button type="button" class="btn btn-secondary mt-2" @onclick="CancelarEdicion" hidden="@(!editando)">Cancelar</button>
+</EditForm>
+
+@code {
+    private List<AsignacionDto>? asignaciones;
+    private List<ConductorDto> conductores = new();
+    private List<VehiculoDto> vehiculosDisponibles = new();
+    private AsignacionDto asignacionForm = new AsignacionDto
+    {
+        FechaInicio = DateTime.Today,
+        FechaFin = DateTime.Today,
+        ConductorId = 0,
+        VehiculoId = 0
+    };
+    private bool editando = false;
+
+    private string mensaje = string.Empty;
+    private string alertClass = "alert-success";
+    private MarkupString mensajeMarkup;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        asignaciones = await asignacionService.GetAsignaciones();
+        conductores = await asignacionService.GetConductores();
+        vehiculosDisponibles = await asignacionService.GetVehiculosDisponibles();
+    }
+
+    private async Task GuardarAsignacion()
+    {
+        HttpResponseMessage response;
+
+        if (editando)
+        {
+            response = await asignacionService.ActualizarAsignacion(asignacionForm);
+        }
+        else
+        {
+            response = await asignacionService.CrearAsignacion(asignacionForm);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarDatos();
+            asignacionForm = new AsignacionDto
+            {
+                FechaInicio = DateTime.Today,
+                FechaFin = DateTime.Today,
+                ConductorId = 0,
+                VehiculoId = 0
+            };
+            editando = false;
+            MostrarMensaje(editando ? "Asignación actualizada correctamente" : "Asignación creada correctamente", "alert-success");
+        }
+        else
+        {
+            await MostrarErrores(response);
+        }
+    }
+
+    private void EditarAsignacion(AsignacionDto a)
+    {
+        editando = true;
+        asignacionForm = new AsignacionDto
+        {
+            Id = a.Id,
+            VehiculoId = a.VehiculoId,
+            ConductorId = a.ConductorId,
+            FechaInicio = a.FechaInicio,
+            FechaFin = a.FechaFin
+        };
+    }
+
+    private void CancelarEdicion()
+    {
+        editando = false;
+        asignacionForm = new AsignacionDto
+        {
+            FechaInicio = DateTime.Today,
+            FechaFin = DateTime.Today,
+            ConductorId = 0,
+            VehiculoId = 0
+        };
+    }
+
+    private async Task EliminarAsignacion(int id)
+    {
+        var response = await asignacionService.EliminarAsignacion(id);
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarDatos();
+            MostrarMensaje("Asignación eliminada correctamente", "alert-success");
+        }
+        else
+        {
+            await MostrarErrores(response);
+        }
+    }
+
+    private void MostrarMensaje(string texto, string tipo)
+    {
+        mensaje = texto;
+        alertClass = tipo;
+        _ = OcultarMensajeAsync();
+    }
+
+    private async Task OcultarMensajeAsync()
+    {
+        await Task.Delay(5000);
+        mensaje = string.Empty;
+        mensajeMarkup = new MarkupString(string.Empty);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task MostrarErrores(HttpResponseMessage response)
+    {
+        var json = await response.Content.ReadAsStringAsync();
+
+        try
+        {
+            var errorObj = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            if (errorObj.TryGetProperty("errors", out var errors))
+            {
+                var mensajes = new List<string>();
+
+                foreach (var prop in errors.EnumerateObject())
+                {
+                    foreach (var msg in prop.Value.EnumerateArray())
+                    {
+                        var texto = msg.GetString();
+                        if (!string.IsNullOrWhiteSpace(texto) && !texto.StartsWith("The "))
+                        {
+                            mensajes.Add(texto);
+                        }
+                    }
+                }
+
+                var mensajeFinal = string.Join("<br/>", mensajes);
+                mensajeMarkup = new MarkupString(mensajeFinal);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+            else
+            {
+                mensajeMarkup = new MarkupString(json);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+        }
+        catch
+        {
+            mensajeMarkup = new MarkupString(json);
+            alertClass = "alert-danger";
+            _ = OcultarMensajeAsync();
+        }
+    }
+}

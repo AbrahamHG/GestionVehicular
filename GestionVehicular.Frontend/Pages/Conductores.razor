@@ -1,0 +1,240 @@
+﻿@page "/conductores"
+@using Blazored.FluentValidation
+@using GestionVehicular.Frontend.Services
+@using GestionVehicular.Core.Dtos
+@using System.Text.Json
+@inject ConductorService ConductorService
+
+<h3>Gestión de Conductores</h3>
+
+@if (!string.IsNullOrEmpty(mensajeMarkup.Value))
+{
+    <div class="alert @alertClass role="alert">
+        @mensajeMarkup
+    </div>
+}
+else if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert @alertClass role="alert">
+        @mensaje
+    </div>
+}
+
+@if (conductores == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre Completo</th>
+                <th>Número de Licencia</th>
+                <th>Contacto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in conductores)
+            {
+                <tr>
+                    <td>@c.NombreCompleto</td>
+                    <td>@c.NumeroLicencia</td>
+                    <td>@c.Contacto</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => EditarConductor(c)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarConductor(c)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h4>@(editando ? "Editar Conductor" : "Agregar Nuevo Conductor")</h4>
+
+<EditForm Model="conductorForm" OnValidSubmit="GuardarConductor">
+    <BlazoredFluentValidationValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Nombre Completo:</label>
+        <InputText class="form-control" @bind-Value="conductorForm.NombreCompleto" />
+        <ValidationMessage For="@(() => conductorForm.NombreCompleto)" />
+    </div>
+
+    <div class="form-group">
+        <label>Número de Licencia:</label>
+        <InputText class="form-control" @bind-Value="conductorForm.NumeroLicencia" />
+        <ValidationMessage For="@(() => conductorForm.NumeroLicencia)" />
+    </div>
+
+    <div class="form-group">
+        <label>Contacto:</label>
+        <InputText class="form-control" @bind-Value="conductorForm.Contacto" />
+        <ValidationMessage For="@(() => conductorForm.Contacto)" />
+    </div>
+
+    <button class="btn btn-primary mt-2">
+        @(editando ? "Actualizar" : "Guardar")
+    </button>
+    <button class="btn btn-secondary mt-2" @onclick="CancelarEdicion" hidden="@(!editando)">Cancelar</button>
+</EditForm>
+
+@code {
+    private List<ConductorDto>? conductores;
+    private ConductorDto conductorForm = new ConductorDto();
+    private bool editando = false;
+    private int editIndex = -1;
+
+    private string mensaje = string.Empty;
+    private string alertClass = "alert-success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarConductores();
+    }
+
+    private async Task CargarConductores()
+    {
+        conductores = (await ConductorService.GetconductorAsync())?.ToList();
+    }
+
+    private async Task GuardarConductor()
+    {
+        if (editando)
+        {
+            var response = await ConductorService.UpdateConductorAsync(editIndex, conductorForm);
+            if (response.IsSuccessStatusCode)
+            {
+                await CargarConductores();
+                CancelarEdicion();
+                MostrarMensaje("Conductor actualizado correctamente", "alert-success");
+            }
+            else
+            {
+                await MostrarErrores(response);
+
+            }
+        }
+        else
+        {
+            var response = await ConductorService.CreateConductorAsync(conductorForm);
+            if (response.IsSuccessStatusCode)
+            {
+                await CargarConductores();
+                conductorForm = new ConductorDto();
+                MostrarMensaje("Conductor agregado correctamente", "alert-success");
+            }
+            else
+            {
+                await MostrarErrores(response);
+            }
+        }
+    }
+
+    private void EditarConductor(ConductorDto c)
+    {
+        editando = true;
+        editIndex = c.Id;
+        conductorForm = new ConductorDto
+        {
+            Id = c.Id,
+            NombreCompleto = c.NombreCompleto,
+            NumeroLicencia = c.NumeroLicencia,
+            Contacto = c.Contacto
+        };
+
+    }
+
+    private async Task EliminarConductor(ConductorDto c)
+    {
+        var response = await ConductorService.DeleteConductorAsync(c.Id);
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarConductores();
+            MostrarMensaje("Conductor eliminado correctamente", "alert-success");
+        }
+        else
+        {
+            await MostrarErrores(response);
+
+        }
+    }
+
+    private void CancelarEdicion()
+    {
+        editando = false;
+        editIndex = -1;
+        conductorForm = new ConductorDto();
+    }
+
+    private void MostrarMensaje(string texto, string tipo)
+    {
+        mensaje = texto;
+        alertClass = tipo;
+
+        // Ocultar después de 5 segundos
+        _ = OcultarMensajeAsync();
+    }
+
+    private async Task OcultarMensajeAsync()
+    {
+        await Task.Delay(5000);
+        mensaje = string.Empty;
+        mensajeMarkup = new MarkupString(string.Empty);
+        await InvokeAsync(StateHasChanged); // refresca la UI en el contexto de Blazor
+    }
+
+    private MarkupString mensajeMarkup;
+
+    private async Task MostrarErrores(HttpResponseMessage response)
+    {
+        var json = await response.Content.ReadAsStringAsync();
+
+        try
+        {
+            var errorObj = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            if (errorObj.TryGetProperty("errors", out var errors))
+            {
+                var mensajes = new List<string>();
+
+                foreach (var prop in errors.EnumerateObject())
+                {
+                    foreach (var msg in prop.Value.EnumerateArray())
+                    {
+                        var texto = msg.GetString();
+                        if (!string.IsNullOrWhiteSpace(texto) && !texto.StartsWith("The "))
+                        {
+                            mensajes.Add(texto);
+                        }
+                    }
+                }
+
+                var mensajeFinal = string.Join("<br/>", mensajes);
+                mensajeMarkup = new MarkupString(mensajeFinal);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+            else
+            {
+                // Si no hay "errors", mostrar el texto plano
+                mensajeMarkup = new MarkupString(json);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+        }
+        catch
+        {
+            // Si no es JSON válido, mostrar el texto plano
+            mensajeMarkup = new MarkupString(json);
+            alertClass = "alert-danger";
+            _ = OcultarMensajeAsync();
+        }
+    }
+
+}

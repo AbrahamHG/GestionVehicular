@@ -1,0 +1,253 @@
+﻿@page "/vehiculos"
+@using System.Text.Json
+@inject VehiculoService vehiculoService
+
+<h3>Gestión de Vehículos</h3>
+
+@if (!string.IsNullOrEmpty(mensajeMarkup.Value))
+{
+    <div class="alert @alertClass role="alert">
+        @mensajeMarkup
+    </div>
+}
+else if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert @alertClass role="alert">
+        @mensaje
+    </div>
+}
+
+@if (vehiculos == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Matrícula</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in vehiculos)
+            {
+                <tr>
+                    <td>@v.Matricula</td>
+                    <td>@v.Marca</td>
+                    <td>@v.Modelo</td>
+                    <td>@v.Anio</td>
+                    <td>@v.Tipo</td>
+                    <td>@v.Estado</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => EditarVehiculo(v)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarVehiculo(v.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h4>@(editando ? "Editar Vehículo" : "Agregar Nuevo Vehículo")</h4>
+
+<EditForm Model="@vehiculoForm" OnValidSubmit="GuardarVehiculo">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Matrícula</label>
+        <InputText @bind-Value="vehiculoForm.Matricula" class="form-control" />
+        <ValidationMessage For="@(() => vehiculoForm.Matricula)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Marca</label>
+        <InputText @bind-Value="vehiculoForm.Marca" class="form-control" />
+        <ValidationMessage For="@(() => vehiculoForm.Marca)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Modelo</label>
+        <InputText @bind-Value="vehiculoForm.Modelo" class="form-control" />
+        <ValidationMessage For="@(() => vehiculoForm.Modelo)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Año</label>
+        <InputNumber @bind-Value="vehiculoForm.Anio" class="form-control" />
+        <ValidationMessage For="@(() => vehiculoForm.Anio)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Tipo</label>
+        <InputText @bind-Value="vehiculoForm.Tipo" class="form-control" />
+        <ValidationMessage For="@(() => vehiculoForm.Tipo)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Estado</label>
+        <InputSelect @bind-Value="vehiculoForm.Estado" class="form-control">
+            <option value="0" disabled selected>Seleccione un estado...</option>
+            <option value="Activo">Activo</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Disponible">Disponible</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => vehiculoForm.Estado)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">@(editando ? "Actualizar" : "Guardar")</button>
+    <button type="button" class="btn btn-secondary mt-2" @onclick="CancelarEdicion" hidden="@(!editando)">Cancelar</button>
+</EditForm>
+
+@code {
+    private List<VehiculoDto>? vehiculos;
+    private VehiculoDto vehiculoForm = new VehiculoDto();
+    private bool editando = false;
+
+    private string mensaje = string.Empty;
+    private string alertClass = "alert-success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarVehiculos();
+    }
+
+    private async Task CargarVehiculos()
+    {
+        vehiculos = await vehiculoService.GetVehiculos();
+    }
+
+    private async Task GuardarVehiculo()
+    {
+        HttpResponseMessage response;
+
+        if (editando)
+        {
+            response = await vehiculoService.ActualizarVehiculo(vehiculoForm);
+        }
+        else
+        {
+            response = await vehiculoService.CrearVehiculo(vehiculoForm);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarVehiculos();
+            CancelarEdicion();
+            MostrarMensaje(editando ? "Vehículo actualizado correctamente" : "Vehículo agregado correctamente", "alert-success");
+        }
+        else
+        {
+            await MostrarErrores(response);
+
+        }
+    }
+
+    private void EditarVehiculo(VehiculoDto v)
+    {
+        editando = true;
+        vehiculoForm = new VehiculoDto
+        {
+            Id = v.Id,
+            Matricula = v.Matricula,
+            Marca = v.Marca,
+            Modelo = v.Modelo,
+            Anio = v.Anio,
+            Tipo = v.Tipo,
+            Estado = v.Estado
+        };
+    }
+
+    private async Task EliminarVehiculo(int id)
+    {
+        var response = await vehiculoService.EliminarVehiculo(id);
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarVehiculos();
+            MostrarMensaje("Vehículo eliminado correctamente", "alert-success");
+        }
+        else
+        {
+            await MostrarErrores(response);
+
+        }
+    }
+
+    private void CancelarEdicion()
+    {
+        editando = false;
+        vehiculoForm = new VehiculoDto();
+    }
+
+    private void MostrarMensaje(string texto, string tipo)
+    {
+        mensaje = texto;
+        alertClass = tipo;
+        _ = OcultarMensajeAsync();
+    }
+
+    private async Task OcultarMensajeAsync()
+    {
+        await Task.Delay(5000);
+        mensaje = string.Empty;
+        mensajeMarkup = new MarkupString(string.Empty);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private MarkupString mensajeMarkup;
+
+    private async Task MostrarErrores(HttpResponseMessage response)
+    {
+        var json = await response.Content.ReadAsStringAsync();
+
+        try
+        {
+            var errorObj = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            if (errorObj.TryGetProperty("errors", out var errors))
+            {
+                var mensajes = new List<string>();
+
+                foreach (var prop in errors.EnumerateObject())
+                {
+                    foreach (var msg in prop.Value.EnumerateArray())
+                    {
+                        var texto = msg.GetString();
+                        if (!string.IsNullOrWhiteSpace(texto) && !texto.StartsWith("The "))
+                        {
+                            mensajes.Add(texto);
+                        }
+                    }
+                }
+
+                var mensajeFinal = string.Join("<br/>", mensajes);
+                mensajeMarkup = new MarkupString(mensajeFinal);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+            else
+            {
+                // Si no hay "errors", mostrar el texto plano
+                mensajeMarkup = new MarkupString(json);
+                alertClass = "alert-danger";
+                _ = OcultarMensajeAsync();
+            }
+        }
+        catch
+        {
+            // Si no es JSON válido, mostrar el texto plano
+            mensajeMarkup = new MarkupString(json);
+            alertClass = "alert-danger";
+            _ = OcultarMensajeAsync();
+        }
+    }
+}

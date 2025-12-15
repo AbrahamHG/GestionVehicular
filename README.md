@@ -112,7 +112,7 @@ Si aparece un error relacionado con certificados HTTPS, asegúrate de:
 - Abrir `http://localhost:5000` en el navegador.
 - Verificar que `launchSettings.json` no incluya `https://localhost:5001`.
 
-PRUEBAS HECHAS:
+## PRUEBAS HECHAS:
 <img width="589" height="400" alt="Image" src="https://github.com/user-attachments/assets/2bb0a2a6-9e94-4af0-b0bf-1ebe7963cef7" />
 <img width="589" height="211" alt="Image" src="https://github.com/user-attachments/assets/4ef05a73-cf98-407d-a794-1be33b30f6c0" />
 <img width="589" height="352" alt="Image" src="https://github.com/user-attachments/assets/2d964553-3ad4-4964-9b98-ceb80d418fd2" />

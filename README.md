@@ -111,3 +111,13 @@ Si aparece un error relacionado con certificados HTTPS, asegúrate de:
 - Usar el perfil `GestionVehicular.Api` en Visual Studio (no IIS Express).
 - Abrir `http://localhost:5000` en el navegador.
 - Verificar que `launchSettings.json` no incluya `https://localhost:5001`.
+
+PRUEBAS HECHAS:
+<img width="589" height="400" alt="Image" src="https://github.com/user-attachments/assets/2bb0a2a6-9e94-4af0-b0bf-1ebe7963cef7" />
+<img width="589" height="211" alt="Image" src="https://github.com/user-attachments/assets/4ef05a73-cf98-407d-a794-1be33b30f6c0" />
+<img width="589" height="352" alt="Image" src="https://github.com/user-attachments/assets/2d964553-3ad4-4964-9b98-ceb80d418fd2" />
+<img width="589" height="325" alt="Image" src="https://github.com/user-attachments/assets/03087b40-24a8-4bad-ac40-29499e41292b" />
+<img width="589" height="355" alt="Image" src="https://github.com/user-attachments/assets/4061028d-3d90-4954-93e2-a952266a09df" />
+<img width="589" height="331" alt="Image" src="https://github.com/user-attachments/assets/c4737a21-4884-4dea-9038-1f962723de01" />
+<img width="589" height="351" alt="Image" src="https://github.com/user-attachments/assets/b3ecfeef-a04c-41ef-b274-c40bfc29cdd5" />
+<img width="589" height="320" alt="Image" src="https://github.com/user-attachments/assets/faa882ed-dea9-4ae9-a06c-8e8287751470" />

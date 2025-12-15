@@ -74,7 +74,7 @@ Este proyecto implementa una API con frontend Razor y base de datos SQL Server.
 }
 
 4- **Ejecutar la API**
-- Ejecutar de Visual Studio (arriba a la izquierda), cambia el perfil a http o https de tu API no usar Container (Dockerfile) ni docker-compose.
+- Ejecutar de Visual Studio (arriba a la izquierda), cambia el perfil a https de tu API no usar Container (Dockerfile) ni docker-compose o en dado caso usat http.
 - Seleccionar proyecto GestionVehicular.Api. o selecionar multiple de API y FRONTEND para probar las 2
 
 ## PROBAR
